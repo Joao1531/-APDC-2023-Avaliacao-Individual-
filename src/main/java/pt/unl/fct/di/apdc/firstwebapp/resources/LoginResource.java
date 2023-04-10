@@ -61,6 +61,7 @@ public class LoginResource {
         try {
 
             Entity user = txn.get(userKey);
+
             if (user == null) {
                 //Username does not exist
                 LOG.warning("Failed login attempt for username: " + data.username);
@@ -129,43 +130,9 @@ public class LoginResource {
             txn.put(log, ustats);
         else
             txn.put(ustats);
+        LOG.warning("");
         txn.commit();
     }
 
-    /**
-     @POST
-     @Path("/user")
-     @Consumes(MediaType.APPLICATION_JSON)
-     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8") // produz sempre dados em json
-     public Response checkUsernameAvailable(LoginData data){
-     Key userKey = userKeyFactory.newKey(data.username);
-     Entity user = datastore.get(userKey);
-     if(user != null && user.getString("user_pwd").equals(DigestUtils.sha512Hex(data.password))){
 
-     // Get the date of yesterday
-     Calendar cal = Calendar.getInstance();
-     cal.add(Calendar.DATE,-1);
-     Timestamp yesterday = Timestamp.of(cal.getTime());
-
-     Query <Entity> query = Query.newEntityQueryBuilder()
-     .setKind("UserLog")
-     .setFilter(
-     StructuredQuery.CompositeFilter.and(
-     StructuredQuery.PropertyFilter.hasAncestor(
-     datastore.newKeyFactory().setKind("User").newKey(data.username)),
-     StructuredQuery.PropertyFilter.ge("user_login_time",yesterday)
-     )
-     ).setOrderBy(StructuredQuery.OrderBy.desc("user_login_time")).setLimit(3).build();
-     QueryResults <Entity> logs = datastore.run(query);
-     List<Date> loginDates = new ArrayList();
-     logs.forEachRemaining(userlog -> {
-     loginDates.add(userlog.getTimestamp("user_login_time").toDate());
-     });
-     return Response.ok(g.toJson(loginDates)).build();
-     } else{
-
-     }
-
-     }
-     **/
 }

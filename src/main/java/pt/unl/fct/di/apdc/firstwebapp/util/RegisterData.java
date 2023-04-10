@@ -1,20 +1,41 @@
 package pt.unl.fct.di.apdc.firstwebapp.util;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+
 public class RegisterData {
 
-    private static final String USER = "user";
-    private static final String GBO = "gbo";
-    private static final String GA = "ga";
+    public enum Role {
+        SU ("SU") ,
+        GS ("GS"),
+        GA ("GA"),
+        GBO ("GBO"),
+        USER ("USER");
 
-    private static final String GS = "gs";
-    private static final String SU = "su";
+        private final String role;
 
-    private static final String ACTIVE = "active";
+        private Role(String role){
+            this.role = role;
+        }
+        public String getRole(){
+            return role;
+        }
 
-    private static final String INACTIVE = "inactive";
+
+
+    }
+
+
+    //private static final String ACTIVE = "ACTIVE";
+
+    private static final String INACTIVE = "INACTIVE";
+    NetworkInterface network = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
 
 
     // Mandatory User Attributes
+
     public String username;
     public String password;
 
@@ -23,6 +44,7 @@ public class RegisterData {
 
     public String name;
     public String role;
+
 
     public String state;
 
@@ -36,36 +58,41 @@ public class RegisterData {
     public boolean hasPhoto;
 
 
-    public RegisterData() {
+    public RegisterData() throws SocketException, UnknownHostException {
     }
     // in case the user doesn't want to customize its profile yet.
-    public RegisterData(String username, String password, String confirmation, String email, String name) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.name = name;
-        this.confirmation = confirmation;
-        this.role = USER;
-        this.state = INACTIVE;
-        this.phoneNum = "";
-        this.isPrivate = false;
-        this.NIF = "";
-        this.workAddress = "";
-        this.hasPhoto = false;
-    }
+
+    /**
+     * public RegisterData(String username, String password, String confirmation, String email, String name) throws SocketException, UnknownHostException {
+     * this.username = username;
+     * this.password = password;
+     * this.email = email;
+     * this.name = name;
+     * this.confirmation = confirmation;
+     * this.role = getRole();
+     * this.state = INACTIVE;
+     * this.phoneNum = "";
+     * this.isPrivate = false;
+     * this.NIF = "";
+     * this.job="";
+     * this.workAddress = "";
+     * this.hasPhoto = false;
+     * }
+     **/
 
     // in case the user wants to add optional attributes to the profile
-    public RegisterData(String username, String password, String confirmation, String email, String name, String phoneNum, boolean isPrivate, String NIF, String workAddress) {
+    public RegisterData(String username, String password, String confirmation, String email, String name, String phoneNum, boolean isPrivate, String NIF, String job, String workAddress) throws SocketException, UnknownHostException {
         this.username = username;
         this.password = password;
         this.email = email;
         this.name = name;
         this.confirmation = confirmation;
-        this.role = USER;
+        this.role = "";
         this.state = INACTIVE;
         this.phoneNum = phoneNum;
         this.isPrivate = isPrivate;
         this.NIF = NIF;
+        this.job = job;
         this.workAddress = workAddress;
         this.hasPhoto = false;
     }
@@ -82,99 +109,56 @@ public class RegisterData {
         return !username.equals("") && !password.equals("") && checkEmail();
     }
 
-
-    public String getUsername() {
-        return username;
+    private String getMacAddress() throws UnknownHostException, SocketException {
+        String macAddress;
+        NetworkInterface network = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+        byte[] mac = network.getHardwareAddress();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < mac.length; i++) {
+            sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+        }
+        macAddress = sb.toString();
+        return macAddress;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public String getConfirmation() {
-        return confirmation;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getRole() {
+    public Role getRole(Role role) throws SocketException, UnknownHostException {
+        if (username.equals(getMacAddress())) {
+            role = Role.SU;
+        } else {
+            role = Role.GBO;
+        }
         return role;
     }
 
-    public String getState() {
-        return state;
-    }
 
-    public boolean isPrivate() {
-        return isPrivate;
-    }
+    /**
+     public void changeProfileStatus(boolean isPrivate) {
+     if (isPrivate)
+     isPrivate = false;
+     else
+     isPrivate = true;
+     }
 
-    public String getPhoneNum() {
-        return phoneNum;
-    }
+     public void setPhoto() {
+     if (!hasPhoto)
+     hasPhoto = true;
+     }
 
-    public String getJob() {
-        return job;
-    }
+     public void setRole(Role newRole) {
+     if (newRole.equals(Role.USER) || newRole.equals(Role.SU) || newRole.equals(Role.GBO) || newRole.equals(Role.GA) || newRole.equals(Role.GS)) {
+     role = newRole;
+     }
+     }
 
-    public String getNIF() {
-        return NIF;
-    }
-
-    public boolean hasPhoto() {
-        return hasPhoto;
-    }
-
-    public String getWorkAddress() {
-        return workAddress;
-    }
-
-    public void setWorkAddress(String workAddress) {
-        this.workAddress = workAddress;
-    }
-
-    public void setPhone(String phone) {
-        this.phoneNum = phone;
-    }
-
-    public void setJob(String job) {
-        this.job = job;
-    }
-
-    public void setNIF(String NIF) {
-        this.NIF = NIF;
-    }
-
-    public void changeProfileStatus(boolean isPrivate) {
-        if (isPrivate)
-            isPrivate = false;
-        else
-            isPrivate = true;
-    }
-
-    public void setPhoto() {
-        if (!hasPhoto)
-            hasPhoto = true;
-    }
-
-    public void setRole(String newRole) {
-        if (newRole.equals(USER) || newRole.equals(SU) || newRole.equals(GBO) || newRole.equals(GA) || newRole.equals(GS)) {
-            role = newRole;
-        }
-    }
-
-    public void setState(String newState) {
-        if (newState.equals(ACTIVE) || newState.equals(INACTIVE)) {
-            if (state.equals(ACTIVE))
-                state = INACTIVE;
-            else
-                state = ACTIVE;
-        }
-    }
+     public void setState(String newState) {
+     if (newState.equals(ACTIVE) || newState.equals(INACTIVE)) {
+     if (state.equals(ACTIVE))
+     state = INACTIVE;
+     else
+     state = ACTIVE;
+     }
+     }
+     public boolean canDelete(RegisterData targetUser){
+     return this.getRole().ordinal() >= targetUser.getRole().ordinal();
+     }**/
 }

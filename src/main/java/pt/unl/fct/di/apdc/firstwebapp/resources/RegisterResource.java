@@ -1,5 +1,7 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
 
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -45,13 +47,15 @@ public class RegisterResource {
         if (!data.checkConfirmation()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(" Passowords don't match. ").build();
         }
-		Transaction txn = datastore.newTransaction();
-		try {
+        Transaction txn = datastore.newTransaction();
+        try {
             Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
             Entity user = txn.get(userKey);
             if (user != null) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("User already exists.").build();
             } else {
+                //data.role = "teste";
+                LOG.severe(data.role + " ");
                 user = Entity.newBuilder(userKey)
                         .set("user_name", data.name)
                         .set("user_pwd", DigestUtils.sha512Hex(data.password))
@@ -61,9 +65,11 @@ public class RegisterResource {
                         .set("user_NIF",data.NIF)
                         .set("user_workAddr",data.workAddress)
                         .set("user_creation_time", Timestamp.now())
+                        .set("user_role",data.role)
                         .build();
-				txn.add(user);
-				LOG.info("User registered " + data.username);
+
+                txn.add(user);
+                LOG.info("User registered " + data.username);
                 txn.commit();
                 return Response.ok("{}").build();
             }
