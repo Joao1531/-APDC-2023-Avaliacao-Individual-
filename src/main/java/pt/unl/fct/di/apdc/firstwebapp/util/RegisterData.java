@@ -1,5 +1,7 @@
 package pt.unl.fct.di.apdc.firstwebapp.util;
 
+import pt.unl.fct.di.apdc.firstwebapp.resources.RegisterResource;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -7,25 +9,7 @@ import java.net.UnknownHostException;
 
 public class RegisterData {
 
-    public enum Role {
-        SU ("SU") ,
-        GS ("GS"),
-        GA ("GA"),
-        GBO ("GBO"),
-        USER ("USER");
 
-        private final String role;
-
-        private Role(String role){
-            this.role = role;
-        }
-        public String getRole(){
-            return role;
-        }
-
-
-
-    }
 
 
     //private static final String ACTIVE = "ACTIVE";
@@ -43,7 +27,7 @@ public class RegisterData {
     public String email;
 
     public String name;
-    public String role;
+    public RegisterResource.Role role;
 
 
     public String state;
@@ -87,7 +71,7 @@ public class RegisterData {
         this.email = email;
         this.name = name;
         this.confirmation = confirmation;
-        this.role = "";
+        this.role = RegisterResource.Role.USER;
         this.state = INACTIVE;
         this.phoneNum = phoneNum;
         this.isPrivate = isPrivate;
@@ -109,26 +93,7 @@ public class RegisterData {
         return !username.equals("") && !password.equals("") && checkEmail();
     }
 
-    private String getMacAddress() throws UnknownHostException, SocketException {
-        String macAddress;
-        NetworkInterface network = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
-        byte[] mac = network.getHardwareAddress();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < mac.length; i++) {
-            sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
-        }
-        macAddress = sb.toString();
-        return macAddress;
-    }
 
-    public Role getRole(Role role) throws SocketException, UnknownHostException {
-        if (username.equals(getMacAddress())) {
-            role = Role.SU;
-        } else {
-            role = Role.GBO;
-        }
-        return role;
-    }
 
 
     /**
