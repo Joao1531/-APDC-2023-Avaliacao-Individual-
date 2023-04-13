@@ -55,6 +55,7 @@ public class RegisterResource {
                 return Response.status(Response.Status.BAD_REQUEST).entity("User already exists.").build();
             } else {
                 setRole(data);
+                setState(data);
                 user = Entity.newBuilder(userKey)
                         .set("user_id",data.username)
                         .set("user_name", data.name)
@@ -62,7 +63,8 @@ public class RegisterResource {
                         .set("user_email", data.email)
                         .set("user_phoneNum",data.phoneNum)
                         .set("user_profile_status",data.isPrivate)
-                        .set("user_role",String.valueOf(data.role))
+                        .set("user_role",data.role)
+                        .set("user_state",data.state)
                         .set("user_NIF",data.NIF)
                         .set("user_workAddr",data.workAddress)
                         .set("user_creation_time", Timestamp.now())
@@ -78,30 +80,17 @@ public class RegisterResource {
                 txn.rollback();
         }
     }
-    public enum Role {
-        SU ("SU") ,
-        GS ("GS"),
-        GA ("GA"),
-        GBO ("GBO"),
-        USER ("USER");
-
-        private final String role;
-
-        private Role(String role){
-            this.role = role;
-        }
-        public String getRole(){
-            return role;
-        }
 
 
 
-    }
     private void setRole(RegisterData data){
         if(data.username.equals("0x23CBB06B"))
-            data.role = Role.SU;
+            data.role = "SU";
         else
-            data.role = Role.USER;
+            data.role = "USER";
+    }
+    private void setState(RegisterData data){
+        data.state = UserState.INACTIVE.toString();
     }
 
 }

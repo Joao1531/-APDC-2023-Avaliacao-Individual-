@@ -4,10 +4,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -20,7 +17,9 @@ import com.google.gson.Gson;
 
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.checkerframework.checker.units.qual.K;
 import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
+import pt.unl.fct.di.apdc.firstwebapp.util.ChangePasswordData;
 import pt.unl.fct.di.apdc.firstwebapp.util.LoginData;
 
 @Path("/login")
@@ -36,6 +35,11 @@ public class LoginResource {
 
     private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     private final KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("User");
+    private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("AuthTokens");
+
+
+
+
 
 
     public LoginResource() {
@@ -55,6 +59,7 @@ public class LoginResource {
         Key ctrsKey = datastore.newKeyFactory().addAncestors(PathElement.of("User", data.username)).setKind("UserStats").newKey("counters");
         // Generate automatically a key
         Key logKey = datastore.allocateId(datastore.newKeyFactory().addAncestors(PathElement.of("User", data.username)).setKind("UserLog").newKey());
+        Key tokenKey = tokenKeyFactory.newKey(data.username);
 
         Transaction txn = datastore.newTransaction();
 
@@ -79,6 +84,8 @@ public class LoginResource {
                         .build();
             }
             String hashedPWD = (String) user.getString("user_pwd");
+
+
             if (hashedPWD.equals(DigestUtils.sha512Hex(data.password))) {
                 // Password is correct
                 // Construct the logs
@@ -94,10 +101,18 @@ public class LoginResource {
                 Entity log = builder
                         .build();
                 copyStats(txn, stats, log, ctrsKey);
-
                 // Return token
                 AuthToken token = new AuthToken(data.username);
-                LOG.info("User '" + data.username + "' logged in successfully.");
+                Entity tokens = txn.get(tokenKey);
+                if(tokens == null){
+                    tokens = Entity.newBuilder(tokenKey)
+                            .set("token_id",token.tokenID)
+                            .set("token_expireDate",token.expirationData)
+                            .build();
+                    txn.put(tokens);
+                    txn.commit();
+                }
+                LOG.info("User '" + data.username + "' logged in successfully with the token: " + token.tokenID+" .");
                 return Response.ok(g.toJson(token)).build();
             } else {
                 // Incorrect password
@@ -131,8 +146,58 @@ public class LoginResource {
         else
             txn.put(ustats);
         LOG.warning("");
-        txn.commit();
+
     }
 
+    @PUT
+    @Path("/changePassword")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8") // produz sempre dados em json
+    public Response changePassword(ChangePasswordData data) {
+        LOG.fine("Attempt to change password for user: " + data.username);
+
+        Key userKey = userKeyFactory.newKey(data.username);
+
+        Transaction txn = datastore.newTransaction();
+
+        try {
+            Entity user = txn.get(userKey);
+
+
+            if (user == null) {
+                //Username does not exist
+                LOG.warning("Failed login attempt for username: " + data.username);
+                return Response.status(Status.FORBIDDEN).build();
+            }
+
+            String hashedNewPwd = DigestUtils.sha512Hex(data.newPassword);
+            if (hashedNewPwd.equals(DigestUtils.sha512Hex(user.getString("user_pwd")))) {
+                // Incorrect old password
+                LOG.warning("The passwords are the same:");
+                return Response.status(Status.FORBIDDEN).build();
+            }
+            if (!data.isValid()) {
+                LOG.warning("The passwords don't match.");
+                return Response.status(Status.FORBIDDEN).build();
+            }
+            user = Entity.newBuilder(userKey, user)
+                    .set("user_pwd", hashedNewPwd)
+                    .build();
+            txn.update(user);
+            txn.commit();
+            LOG.info("Password changed successfully for user: " + data.username);
+            return Response.ok().build();
+
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Exception").build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+                return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Finally").build();
+            }
+        }
+    }
 
 }

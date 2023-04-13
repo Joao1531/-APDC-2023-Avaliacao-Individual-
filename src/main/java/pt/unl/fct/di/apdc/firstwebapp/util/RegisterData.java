@@ -1,6 +1,8 @@
 package pt.unl.fct.di.apdc.firstwebapp.util;
 
 import pt.unl.fct.di.apdc.firstwebapp.resources.RegisterResource;
+import pt.unl.fct.di.apdc.firstwebapp.resources.UserRole;
+import pt.unl.fct.di.apdc.firstwebapp.resources.UserState;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -27,7 +29,7 @@ public class RegisterData {
     public String email;
 
     public String name;
-    public RegisterResource.Role role;
+    public String role;
 
 
     public String state;
@@ -71,8 +73,8 @@ public class RegisterData {
         this.email = email;
         this.name = name;
         this.confirmation = confirmation;
-        this.role = RegisterResource.Role.USER;
-        this.state = INACTIVE;
+        this.role = UserRole.USER.toString();
+        this.state = UserState.INACTIVE.toString();
         this.phoneNum = phoneNum;
         this.isPrivate = isPrivate;
         this.NIF = NIF;
@@ -94,36 +96,4 @@ public class RegisterData {
     }
 
 
-
-
-    /**
-     public void changeProfileStatus(boolean isPrivate) {
-     if (isPrivate)
-     isPrivate = false;
-     else
-     isPrivate = true;
-     }
-
-     public void setPhoto() {
-     if (!hasPhoto)
-     hasPhoto = true;
-     }
-
-     public void setRole(Role newRole) {
-     if (newRole.equals(Role.USER) || newRole.equals(Role.SU) || newRole.equals(Role.GBO) || newRole.equals(Role.GA) || newRole.equals(Role.GS)) {
-     role = newRole;
-     }
-     }
-
-     public void setState(String newState) {
-     if (newState.equals(ACTIVE) || newState.equals(INACTIVE)) {
-     if (state.equals(ACTIVE))
-     state = INACTIVE;
-     else
-     state = ACTIVE;
-     }
-     }
-     public boolean canDelete(RegisterData targetUser){
-     return this.getRole().ordinal() >= targetUser.getRole().ordinal();
-     }**/
 }
