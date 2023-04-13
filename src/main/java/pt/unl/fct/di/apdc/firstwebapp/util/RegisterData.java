@@ -14,10 +14,6 @@ public class RegisterData {
 
 
 
-    //private static final String ACTIVE = "ACTIVE";
-
-    private static final String INACTIVE = "INACTIVE";
-    NetworkInterface network = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
 
 
     // Mandatory User Attributes
@@ -44,8 +40,7 @@ public class RegisterData {
     public boolean hasPhoto;
 
 
-    public RegisterData() throws SocketException, UnknownHostException {
-    }
+    public RegisterData() {}
     // in case the user doesn't want to customize its profile yet.
 
     /**

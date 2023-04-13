@@ -2,8 +2,10 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
+import com.google.cloud.storage.Acl;
 import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
+import pt.unl.fct.di.apdc.firstwebapp.util.UserData;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -28,7 +30,6 @@ public class ListUsersResource {
 
     private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-    private final KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("User");
 
 
     public ListUsersResource() {
@@ -46,7 +47,7 @@ public class ListUsersResource {
                 .setKind("User")
                 .build();
         QueryResults<Entity> users = datastore.run(query);
-        List<Entity> usersInfo = new ArrayList<>();
+        List<UserData> usersInfo = new ArrayList<UserData>();
 
         if (!users.hasNext()) {
             return Response.status(Response.Status.FORBIDDEN).entity("No users found. ").build();
@@ -61,34 +62,34 @@ public class ListUsersResource {
 
     }
 
-    private void getUserInfo(Entity user, List<Entity> usersInfo) {
-        Key userKey = datastore.newKeyFactory().setKind("User").newKey(user.getString("user_id"));
-
-
-        Entity curr_UserRole = Entity.newBuilder(userKey)
-                .set("user_id", user.getString("user_id"))
-                .set("user_email", user.getString("user_email"))
-                .set("user_name", user.getString("user_name"))
-                .build();
+    private void getUserInfo(Entity user, List<UserData> usersInfo) {
 
         switch (user.getString("user_role")) {
             case "SU":
-                usersInfo.add(user);
+                usersInfo.add(getUserData(user,""));
                 break;
             case "GS":
                 if (user.getString("user_role").equals(UserRole.GBO) || user.getString("user_role").equals(UserRole.USER))
-                    usersInfo.add( user);
+                    usersInfo.add(getUserData(user,""));
                 break;
             case "GBO":
                 if (user.getString("user_role").equals(UserRole.USER))
-                    usersInfo.add(user);
+                    usersInfo.add(getUserData(user,""));
                 break;
             case "USER":
                 if (user.getString("user_role").equals(UserRole.USER) && user.getString("user_state").equals(UserState.ACTIVE) && user.getBoolean("user_profile_status"))
-                    usersInfo.add(curr_UserRole);
+                    usersInfo.add(getUserData(user,"user"));
                 break;
         }
     }
+    private UserData getUserData(Entity user,String flag){
+        if(!flag.equals("")){
+            return new UserData(user.getString("user_id"),user.getString("user_email"),user.getString("user_name"));
+        }else{
+            LOG.severe("AQUI");
+            return new UserData(user.getString("user_id"),user.getString("user_pwd"),user.getString("user_email"),user.getString("user_name"), user.getString("user_phoneNum"), user.getString("user_role"),user.getString("user_state"),user.getBoolean("user_profile_status"),user.getString("user_NIF"),user.getString("user_job"),user.getString("user_workAddr"));
+        }
 
+    }
 
 }

@@ -66,6 +66,7 @@ public class RegisterResource {
                         .set("user_role",data.role)
                         .set("user_state",data.state)
                         .set("user_NIF",data.NIF)
+                        .set("user_job",data.job)
                         .set("user_workAddr",data.workAddress)
                         .set("user_creation_time", Timestamp.now())
                         .build();

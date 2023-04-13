@@ -46,4 +46,28 @@ public enum UserRole {
         }
         return false;
     }
+
+    public static boolean canModifyUser(Entity user,Entity targetUser){
+        switch (user.getString("user_role")) {
+            case "SU":
+                return true;
+            case "GS":
+                if (targetUser.getString("user_role").equals(GBO.toString()) || targetUser.getString("user_role").equals(USER.toString()))
+                    return true;
+                break;
+            case "GBO":
+                if (targetUser.getString("user_role").equals(USER.toString()))
+                    return true;
+                break;
+            case "USER":
+                if (user.equals(targetUser))
+                    return true;
+                break;
+            default:
+                break;
+
+        }
+        return false;
+        }
+
 }

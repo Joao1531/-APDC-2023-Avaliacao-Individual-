@@ -2,17 +2,19 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
-import pt.unl.fct.di.apdc.firstwebapp.util.ChangeRoleData;
+import org.apache.commons.codec.digest.DigestUtils;
+import pt.unl.fct.di.apdc.firstwebapp.util.ChangePasswordData;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.logging.Logger;
 
-@Path("/changeRole")
-@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8") // produz sempre dados em json
-public class ChangeRoleResource {
 
+public class ChangePasswordResource {
     private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
 
     private final Gson g = new Gson();
@@ -21,43 +23,51 @@ public class ChangeRoleResource {
     private final KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("User");
     private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("AuthTokens");
 
-    public ChangeRoleResource() {
-    }
-
     @PUT
-    @Path("/")
+    @Path("/changePassword")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8") // produz sempre dados em json
-    public Response changeRole(ChangeRoleData data) {
-        Key userKey = userKeyFactory.newKey(data.currUsername);
-        Key targetKey = userKeyFactory.newKey(data.targetUsername);
-        Key tokenKey = tokenKeyFactory.newKey(data.currUsername);
+    public Response changePassword(ChangePasswordData data) {
+        LOG.fine("Attempt to change password for user: " + data.username);
+
+        Key userKey = userKeyFactory.newKey(data.username);
+        Key tokenKey = tokenKeyFactory.newKey(data.username);
+
+
         Transaction txn = datastore.newTransaction();
 
         try {
+            Entity user = txn.get(userKey);
             Entity userToken = txn.get(tokenKey);
+
             if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
                 LOG.warning("Login has expired. Login again ");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
-            Entity user = txn.get(userKey);
-            Entity targetUser = txn.get(targetKey);
-            if (targetUser == null || user == null) {
-                LOG.warning("One of the users doesn't exist.");
+            if (user == null) {
+                //Username does not exist
+                LOG.warning("Failed login attempt for username: " + data.username);
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
-            if (!UserRole.canChangeRole(user, targetUser)) {
-                LOG.warning("User has no permissions to change target role.");
+
+            String hashedNewPwd = DigestUtils.sha512Hex(data.newPassword);
+            if (hashedNewPwd.equals(DigestUtils.sha512Hex(user.getString("user_pwd")))) {
+                // Incorrect old password
+                LOG.warning("The passwords are the same:");
                 return Response.status(Response.Status.FORBIDDEN).build();
-            } else {
-                targetUser = Entity.newBuilder(targetKey, targetUser)
-                        .set("user_role", data.newRole)
-                        .build();
-                txn.update(targetUser);
-                txn.commit();
-                LOG.info("Role changed successfully for user: " + data.targetUsername);
-                return Response.ok().build();
             }
+            if (!data.isValid()) {
+                LOG.warning("The passwords don't match.");
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+            user = Entity.newBuilder(userKey, user)
+                    .set("user_pwd", hashedNewPwd)
+                    .build();
+            txn.update(user);
+            txn.commit();
+            LOG.info("Password changed successfully for user: " + data.username);
+            return Response.ok().build();
+
         } catch (Exception e) {
             txn.rollback();
             LOG.severe(e.getMessage());
@@ -68,19 +78,6 @@ public class ChangeRoleResource {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Finally").build();
             }
         }
-
     }
 
-
-
-
-
-    }
-
-
-
-
-
-
-
-
+}

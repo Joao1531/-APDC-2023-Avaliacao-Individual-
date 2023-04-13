@@ -149,55 +149,5 @@ public class LoginResource {
 
     }
 
-    @PUT
-    @Path("/changePassword")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8") // produz sempre dados em json
-    public Response changePassword(ChangePasswordData data) {
-        LOG.fine("Attempt to change password for user: " + data.username);
-
-        Key userKey = userKeyFactory.newKey(data.username);
-
-        Transaction txn = datastore.newTransaction();
-
-        try {
-            Entity user = txn.get(userKey);
-
-
-            if (user == null) {
-                //Username does not exist
-                LOG.warning("Failed login attempt for username: " + data.username);
-                return Response.status(Status.FORBIDDEN).build();
-            }
-
-            String hashedNewPwd = DigestUtils.sha512Hex(data.newPassword);
-            if (hashedNewPwd.equals(DigestUtils.sha512Hex(user.getString("user_pwd")))) {
-                // Incorrect old password
-                LOG.warning("The passwords are the same:");
-                return Response.status(Status.FORBIDDEN).build();
-            }
-            if (!data.isValid()) {
-                LOG.warning("The passwords don't match.");
-                return Response.status(Status.FORBIDDEN).build();
-            }
-            user = Entity.newBuilder(userKey, user)
-                    .set("user_pwd", hashedNewPwd)
-                    .build();
-            txn.update(user);
-            txn.commit();
-            LOG.info("Password changed successfully for user: " + data.username);
-            return Response.ok().build();
-
-        } catch (Exception e) {
-            txn.rollback();
-            LOG.severe(e.getMessage());
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Exception").build();
-        } finally {
-            if (txn.isActive()) {
-                txn.rollback();
-                return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Finally").build();
-            }
-        }
-    }
 
 }

@@ -63,6 +63,7 @@ public class RemoveResource {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }else {
                 txn.delete(targetKey);
+                txn.delete(tokenKey);
                 txn.commit();
                 return Response.status(Response.Status.OK).entity("User " + data.targetUser + " removed.").build();
             }
