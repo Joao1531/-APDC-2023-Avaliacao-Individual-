@@ -3,6 +3,7 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
+import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.apdc.firstwebapp.util.ChangePasswordData;
 
 import javax.ws.rs.Consumes;
@@ -39,6 +40,15 @@ public class ChangePasswordResource {
         try {
             Entity user = txn.get(userKey);
             Entity userToken = txn.get(tokenKey);
+
+            if (userToken == null) {
+                LOG.warning("Token not found. Please login.");
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+            if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
+                LOG.warning("Tokens don't match.");
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
 
             if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
                 LOG.warning("Login has expired. Login again ");

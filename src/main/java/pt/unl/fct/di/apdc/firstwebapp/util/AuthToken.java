@@ -10,7 +10,6 @@ public class AuthToken {
 	public long expirationData;
 
 	public AuthToken() {
-
 	}
 
 	public AuthToken(String username) {

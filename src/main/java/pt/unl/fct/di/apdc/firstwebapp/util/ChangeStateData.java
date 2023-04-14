@@ -4,13 +4,16 @@ public class ChangeStateData {
     public String currUsername;
     public String targetUsername;
 
-    public ChangeStateData() {}
+    public AuthToken token;
 
-    public ChangeStateData(String currUsername, String targetUsername) {
-        this.currUsername = currUsername;
-        this.targetUsername = targetUsername;
+    public ChangeStateData() {
     }
 
+    public ChangeStateData(String currUsername, String targetUsername, AuthToken token) {
+        this.currUsername = currUsername;
+        this.targetUsername = targetUsername;
+        this.token = token;
+    }
 
 
 }

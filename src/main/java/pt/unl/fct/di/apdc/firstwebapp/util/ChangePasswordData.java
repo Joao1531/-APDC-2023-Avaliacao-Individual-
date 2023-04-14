@@ -6,13 +6,16 @@ public class ChangePasswordData {
     public String newPassword;
 
     public String confirmation;
+
+    public AuthToken token;
     public ChangePasswordData() {}
 
-    public ChangePasswordData(String username, String oldPassword, String newPassword,String confirmation) {
+    public ChangePasswordData(String username, String oldPassword, String newPassword,String confirmation,AuthToken token) {
         this.username = username;
         this.oldPassword = oldPassword;
         this.newPassword = newPassword;
         this.confirmation=confirmation;
+        this.token=token;
     }
 
     public boolean isValid(){

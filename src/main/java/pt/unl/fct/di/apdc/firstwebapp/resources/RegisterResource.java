@@ -1,7 +1,6 @@
 package pt.unl.fct.di.apdc.firstwebapp.resources;
 
-import java.net.SocketException;
-import java.net.UnknownHostException;
+
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;

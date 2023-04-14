@@ -2,6 +2,7 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
+import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.apdc.firstwebapp.util.ChangeAttributesData;
 
 import javax.ws.rs.Consumes;
@@ -36,13 +37,13 @@ public class ChangeOptionalAttributesResource {
         Key tokenKey = tokenKeyFactory.newKey(data.username);
         Transaction txn = datastore.newTransaction();
         try {
-            LOG.severe("QUIE22");
-
             Entity userToken = txn.get(tokenKey);
-            LOG.severe("QUIE33 ");
-
             if (userToken == null) {
                 LOG.warning("Token not found. Please login.");
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+            if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
+                LOG.warning("Tokens don't match.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
@@ -56,7 +57,7 @@ public class ChangeOptionalAttributesResource {
                 LOG.warning("One of the users doesn't exist.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
-            LOG.severe("QUIE0");
+
 
             if (!UserRole.canModifyUser(user, targetUser)) {
                 LOG.warning("Not enough permissions to modify user.");

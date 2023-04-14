@@ -21,10 +21,11 @@ public class ChangeAttributesData {
     public String NIF;
     public String workAddress;
     public boolean hasPhoto;
+    public AuthToken token;
 
     public ChangeAttributesData(){}
 
-    public ChangeAttributesData(String username,String targetUser, String email, String name, String phoneNum, String NIF, String job, String workAddress)  {
+    public ChangeAttributesData(String username,String targetUser, String email, String name, String phoneNum, String NIF, String job, String workAddress,AuthToken token)  {
         this.username = username;
         this.targetUser = targetUser;
         this.email = email;
@@ -34,5 +35,6 @@ public class ChangeAttributesData {
         this.job = job;
         this.workAddress = workAddress;
         this.hasPhoto = false;
+        this.token=token;
     }
 }

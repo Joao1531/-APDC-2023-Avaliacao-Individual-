@@ -2,7 +2,7 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
-import pt.unl.fct.di.apdc.firstwebapp.util.ChangeRoleData;
+import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.apdc.firstwebapp.util.ChangeStateData;
 
 import javax.ws.rs.*;
@@ -37,6 +37,15 @@ public class ChangeStateResource {
 
         try {
             Entity userToken = txn.get(tokenKey);
+            if (userToken == null) {
+                LOG.warning("Token not found. Please login.");
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+            if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
+                LOG.warning("Tokens don't match.");
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
             if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
                 LOG.warning("Login has expired. Login again ");
                 return Response.status(Response.Status.FORBIDDEN).build();
@@ -71,8 +80,6 @@ public class ChangeStateResource {
         }
 
     }
-
-
 
 
 }

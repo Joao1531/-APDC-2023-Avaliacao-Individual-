@@ -17,9 +17,7 @@ import com.google.gson.Gson;
 
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.checkerframework.checker.units.qual.K;
 import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
-import pt.unl.fct.di.apdc.firstwebapp.util.ChangePasswordData;
 import pt.unl.fct.di.apdc.firstwebapp.util.LoginData;
 
 @Path("/login")
@@ -56,7 +54,7 @@ public class LoginResource {
         // Construct the key from the username
 
         Key userKey = userKeyFactory.newKey(data.username);
-        Key ctrsKey = datastore.newKeyFactory().addAncestors(PathElement.of("User", data.username)).setKind("UserStats").newKey("counters");
+        Key ctrsKey = datastore.newKeyFactory().addAncestors(PathElement.of("User", data.username)).setKind("UserStats").newKey(data.username);
         // Generate automatically a key
         Key logKey = datastore.allocateId(datastore.newKeyFactory().addAncestors(PathElement.of("User", data.username)).setKind("UserLog").newKey());
         Key tokenKey = tokenKeyFactory.newKey(data.username);
