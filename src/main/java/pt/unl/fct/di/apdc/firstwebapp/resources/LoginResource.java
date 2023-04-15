@@ -36,10 +36,6 @@ public class LoginResource {
     private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("AuthTokens");
 
 
-
-
-
-
     public LoginResource() {
     } // Nothing to be done here
 
@@ -102,15 +98,15 @@ public class LoginResource {
                 // Return token
                 AuthToken token = new AuthToken(data.username);
                 Entity tokens = txn.get(tokenKey);
-                if(tokens == null){
+                if (tokens == null || System.currentTimeMillis() > tokens.getLong("token_expireDate")) {
                     tokens = Entity.newBuilder(tokenKey)
-                            .set("token_id",token.tokenID)
-                            .set("token_expireDate",token.expirationData)
+                            .set("token_id", token.tokenID)
+                            .set("token_expireDate", token.expirationData)
                             .build();
                     txn.put(tokens);
                     txn.commit();
                 }
-                LOG.info("User '" + data.username + "' logged in successfully with the token: " + token.tokenID+" .");
+                LOG.info("User '" + data.username + "' logged in successfully with the token: " + token.tokenID + " .");
                 return Response.ok(g.toJson(token)).build();
             } else {
                 // Incorrect password

@@ -56,6 +56,10 @@ public class ChangeStateResource {
                 LOG.warning("One of the users doesn't exist.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+            if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
+                LOG.warning("User is not active.");
+                return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
+            }
             if (!UserState.canChangeState(user, targetUser)) {
                 LOG.warning("User has no permissions to change target state.");
                 return Response.status(Response.Status.FORBIDDEN).build();

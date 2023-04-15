@@ -8,15 +8,15 @@ public class RemoveData {
 
     public AuthToken token;
 
-    public RemoveData(){}
-
-    public RemoveData(String currUser, String targetUser,AuthToken token){
-        this.currUser = currUser;
-        this.targetUser= targetUser;
-        this.token=token;
-
+    public RemoveData() {
     }
 
+    public RemoveData(String currUser, String targetUser, AuthToken token) {
+        this.currUser = currUser;
+        this.targetUser = targetUser;
+        this.token = token;
+
+    }
 
 
 }

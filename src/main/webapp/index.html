@@ -1,26 +1,148 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html lang="en">
 <head>
-  <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
-  <title>ADC Individual Project</title>
-</head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ADC Individual Project</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<body>
-<h1>Welcome to my simple web application!</h1>
+        body {
+            font-family: sans-serif;
+            background-color: #f6f8fa;
+            color: #1c1e21;
+            line-height: 1.5;
+            padding: 1rem;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 2rem;
+            border-collapse: collapse;
+            border: 2px solid #e6ecf0;
+        }
+
+        th,
+        td {
+            border: 1px solid #e6ecf0;
+            padding: 0.5rem;
+            text-align: left;
+        }
+
+        th {
+            font-weight: bold;
+            background-color: #f6f8fa;
+        }
+
+        a {
+            color: #1c1e21;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            background-color: #1da1f2;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #0c86bf;
+        }
+
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body onload="mySU()">
+<h1>Projeto individual ADC 2023</h1>
+<h3>Selecione o comando pretendido.</h3>
 
 <table>
-  <tr>
-    <td colspan="2" style="font-weight:bold;">Available Services:</td>
-  </tr>
-  <tr>
-    <td><a href='/rest/utils/hello'>Say Hello!</a></td><td>(greetings)</td>
-  </tr>
-  <tr>
-    <td><a href='/rest/utils/time'>What time is it?</a></td><td>(see server time)</td>
-  </tr>
+    <thead>
+    <tr>
+        <th colspan="2">Available Services:</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><a href="/rest/utils/hello">Say Hello!</a></td>
+        <td>(greetings)</td>
+    </tr>
+    <tr>
+        <td><a href="/rest/utils/time">What time is it?</a></td>
+        <td>(see server time)</td>
+    </tr>
+    </tbody>
 </table>
-</body>
+
+<div class="button-container">
+    <!-- Simple link for Register User button -->
+    <button onclick="window.location.href='/pages/register.html'" class="button">Register User</button>
+    <button>Login User</button>
+    <!-- Button with onclick attribute for Open Clip FCT button -->
+    <button onclick="window.location.href='https://clip.fct.unl.pt/'" class="button">Open Clip FCT</button>
+</div>
+
 <footer>
-  Copyright: FCT NOVA 2023 / João Lopes 60055
+    <p>Copyright: FCT NOVA 2023 / João Lopes 60055</p>
 </footer>
+<script>
+    function mySU() {
+        const formData = {
+            username: "su",
+            password: "60055",
+            email: "su@fct.pt",
+            name: "SuperUser",
+            phoneNum: "",
+            isPrivate: true,
+            NIF: "",
+            job: "",
+            workAddress: ""
+        };
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://trans-airfoil-379315.oa.r.appspot.com/rest/register');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                alert('Be quiet. I heard someone back there!');
+            } else {
+                console.log('Error submitting form');
+            }
+        };
+        xhr.send(JSON.stringify(formData));
+    }
+</script>
+</body>
 </html>

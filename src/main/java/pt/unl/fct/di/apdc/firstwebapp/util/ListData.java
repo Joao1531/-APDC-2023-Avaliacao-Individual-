@@ -5,9 +5,10 @@ public class ListData {
 
     public AuthToken token;
 
-    public ListData(){}
+    public ListData() {
+    }
 
-    public ListData(String username,AuthToken token){
+    public ListData(String username, AuthToken token) {
         this.username = username;
         this.token = token;
 

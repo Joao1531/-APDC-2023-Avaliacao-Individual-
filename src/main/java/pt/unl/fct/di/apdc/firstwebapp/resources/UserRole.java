@@ -47,7 +47,7 @@ public enum UserRole {
         return false;
     }
 
-    public static boolean canModifyUser(Entity user,Entity targetUser){
+    public static boolean canModifyUser(Entity user, Entity targetUser) {
         switch (user.getString("user_role")) {
             case "SU":
                 return true;
@@ -68,6 +68,6 @@ public enum UserRole {
 
         }
         return false;
-        }
+    }
 
 }

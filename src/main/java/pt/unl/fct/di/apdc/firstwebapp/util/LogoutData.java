@@ -5,9 +5,10 @@ public class LogoutData {
 
     public AuthToken token;
 
-    public LogoutData(){}
+    public LogoutData() {
+    }
 
-    public LogoutData(String username,AuthToken token){
+    public LogoutData(String username, AuthToken token) {
         this.username = username;
         this.token = token;
 

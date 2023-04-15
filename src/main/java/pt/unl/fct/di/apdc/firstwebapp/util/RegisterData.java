@@ -12,16 +12,11 @@ import java.net.UnknownHostException;
 public class RegisterData {
 
 
-
-
-
-
     // Mandatory User Attributes
 
     public String username;
     public String password;
 
-    public String confirmation;
     public String email;
 
     public String name;
@@ -40,34 +35,14 @@ public class RegisterData {
     public boolean hasPhoto;
 
 
-    public RegisterData() {}
-    // in case the user doesn't want to customize its profile yet.
+    public RegisterData() {
+    }
 
-    /**
-     * public RegisterData(String username, String password, String confirmation, String email, String name) throws SocketException, UnknownHostException {
-     * this.username = username;
-     * this.password = password;
-     * this.email = email;
-     * this.name = name;
-     * this.confirmation = confirmation;
-     * this.role = getRole();
-     * this.state = INACTIVE;
-     * this.phoneNum = "";
-     * this.isPrivate = false;
-     * this.NIF = "";
-     * this.job="";
-     * this.workAddress = "";
-     * this.hasPhoto = false;
-     * }
-     **/
-
-    // in case the user wants to add optional attributes to the profile
-    public RegisterData(String username, String password, String confirmation, String email, String name, String phoneNum, boolean isPrivate, String NIF, String job, String workAddress) throws SocketException, UnknownHostException {
+    public RegisterData(String username, String password, String email, String name, String phoneNum, boolean isPrivate, String NIF, String job, String workAddress) throws SocketException, UnknownHostException {
         this.username = username;
         this.password = password;
         this.email = email;
         this.name = name;
-        this.confirmation = confirmation;
         this.role = UserRole.USER.toString();
         this.state = UserState.INACTIVE.toString();
         this.phoneNum = phoneNum;
@@ -78,12 +53,9 @@ public class RegisterData {
         this.hasPhoto = false;
     }
 
+
     public boolean checkEmail() {
         return email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-    }
-
-    public boolean checkConfirmation() {
-        return password.equals(confirmation);
     }
 
     public boolean validRegistration() {

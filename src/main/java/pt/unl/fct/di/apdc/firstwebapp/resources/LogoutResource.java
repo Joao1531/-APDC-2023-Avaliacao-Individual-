@@ -21,7 +21,8 @@ public class LogoutResource {
     private final KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("User");
     private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("AuthTokens");
 
-    public LogoutResource(){}
+    public LogoutResource() {
+    }
 
     @DELETE
     @Path("/")
@@ -34,13 +35,13 @@ public class LogoutResource {
 
         Transaction txn = datastore.newTransaction();
 
-        try{
+        try {
             Entity userToken = txn.get(tokenKey);
             if (userToken == null) {
                 LOG.warning("Token not found.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
-            if(!data.token.tokenID.equals(userToken.getString("token_id"))){
+            if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
                 LOG.warning("Tokens don't match.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
@@ -49,14 +50,14 @@ public class LogoutResource {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
             Entity user = txn.get(userKey);
-            if(user == null){
+            if (user == null) {
                 LOG.warning("User doesn't exist.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
             txn.delete(tokenKey);
             txn.commit();
             return Response.status(Response.Status.OK).entity("Token has been revoked and User has been logged out.").build();
-        }catch (Exception e) {
+        } catch (Exception e) {
             txn.rollback();
             LOG.severe(e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Exception").build();

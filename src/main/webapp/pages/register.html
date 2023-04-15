@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Registar um utilizador</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        .logo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 40px;
+            width: 200px;
+            border-radius: 10px;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #444444;
+            margin-top: 0;
+        }
+
+        label {
+            font-size: 18px;
+            color: #444444;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #1da1f2;
+            color: #ffffff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+
+        button[type="button"] {
+            background-color: #1da1f2;
+            color: #ffffff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="button"]:hover {
+            background-color: #3e8e41;
+        }
+
+        button[type="button"]:focus {
+            outline: none;
+        }
+
+        button[type="button"]:hover,
+        button[type="button"]:focus {
+            background-color: #4cd964;
+        }
+    </style>
+</head>
+<body>
+<img src="https://storage.googleapis.com/trans-airfoil-379315.appspot.com/shrekhuh.jpeg" alt="Logo" class="logo">
+<h1>Registar um utilizador</h1>
+<form id="registerForm">
+    <label for="username">UserName:</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <label for="confirmation">Confirmar Password:</label>
+    <input type="password" id="confirmation" name="confirmation" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="name">Nome:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="phoneNum">Nr.Telemóvel:</label>
+    <input type="text" id="phoneNum" name="phoneNum">
+
+    <label for="isPrivate" style="display: flex; align-items: center;">
+        <span>Perfil Privado</span>
+        <span>
+    <input type="checkbox" id="isPrivate" name="isPrivate" value="true" uncheckedValue="false">
+  </span>
+    </label>
+
+
+    <label for="NIF">NIF:</label>
+    <input type="text" id="NIF" name="NIF">
+
+    <label for="job">Profissão:</label>
+    <input type="text" id="job" name="job">
+
+    <label for="workAddress">Morada Trabalho:</label>
+    <input type="text" id="workAddress" name="workAddress">
+
+
+    <button type="button" onclick="submitForm()">Confirmar</button>
+</form>
+</body>
+<script>
+    function submitForm() {
+        var password = document.getElementById("password").value;
+        var confirmation = document.getElementById("confirmation").value;
+        if (password == confirmation) {
+            const form = document.getElementById('registerForm');
+            const formData = {
+                username: form.elements['username'].value,
+                password: form.elements['password'].value,
+                confirmation: form.elements['confirmation'].value,
+                email: form.elements['email'].value,
+                name: form.elements['name'].value,
+                phoneNum: form.elements['phoneNum'].value,
+                isPrivate: form.elements['isPrivate'].checked,
+                NIF: form.elements['NIF'].value,
+                job: form.elements['job'].value,
+                workAddress: form.elements['workAddress'].value
+            };
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://trans-airfoil-379315.oa.r.appspot.com/rest/register');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    alert('Form submitted iiiii');
+                } else {
+                    alert('Error submitting form');
+                }
+            };
+            xhr.send(JSON.stringify(formData));
+            return true;
+        } else {
+            alert("Passwords do not match!"); // Display an error message
+            return false; // Prevent the form from submitting
+        }
+    }
+</script>
+</html>

@@ -60,6 +60,12 @@ public class ChangePasswordResource {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
+            if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
+                LOG.warning("User is not active.");
+                return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
+
+            }
+
             String hashedNewPwd = DigestUtils.sha512Hex(data.newPassword);
             if (hashedNewPwd.equals(DigestUtils.sha512Hex(user.getString("user_pwd")))) {
                 // Incorrect old password

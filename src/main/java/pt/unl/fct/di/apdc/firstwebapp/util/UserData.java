@@ -25,7 +25,7 @@ public class UserData {
     public String workAddress;
     public boolean hasPhoto;
 
-    public UserData(String username,String password, String email, String name, String phoneNum,String role,String state, boolean isPrivate, String NIF, String job, String workAddress){
+    public UserData(String username, String password, String email, String name, String phoneNum, String role, String state, boolean isPrivate, String NIF, String job, String workAddress) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -39,7 +39,8 @@ public class UserData {
         this.workAddress = workAddress;
 
     }
-    public UserData(String username,String email,String name){
+
+    public UserData(String username, String email, String name) {
         this.username = username;
         this.email = email;
         this.name = name;

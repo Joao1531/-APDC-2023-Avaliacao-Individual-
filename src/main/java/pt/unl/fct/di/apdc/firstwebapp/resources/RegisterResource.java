@@ -43,9 +43,6 @@ public class RegisterResource {
         // Checks input data
         if (!data.validRegistration())
             return Response.status(Response.Status.BAD_REQUEST).entity(" Missing or wrong parameter. ").build();
-        if (!data.checkConfirmation()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(" Passowords don't match. ").build();
-        }
         Transaction txn = datastore.newTransaction();
         try {
             Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
@@ -53,23 +50,21 @@ public class RegisterResource {
             if (user != null) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("User already exists.").build();
             } else {
-                setRole(data);
-                setState(data);
+                setupAccount(data);
                 user = Entity.newBuilder(userKey)
-                        .set("user_id",data.username)
+                        .set("user_id", data.username)
                         .set("user_name", data.name)
                         .set("user_pwd", DigestUtils.sha512Hex(data.password))
                         .set("user_email", data.email)
-                        .set("user_phoneNum",data.phoneNum)
-                        .set("user_profile_status",data.isPrivate)
-                        .set("user_role",data.role)
-                        .set("user_state",data.state)
-                        .set("user_NIF",data.NIF)
-                        .set("user_job",data.job)
-                        .set("user_workAddr",data.workAddress)
+                        .set("user_phoneNum", data.phoneNum)
+                        .set("user_profile_status", data.isPrivate)
+                        .set("user_role", data.role)
+                        .set("user_state", data.state)
+                        .set("user_NIF", data.NIF)
+                        .set("user_job", data.job)
+                        .set("user_workAddr", data.workAddress)
                         .set("user_creation_time", Timestamp.now())
                         .build();
-
                 txn.add(user);
                 LOG.info("User registered " + data.username);
                 txn.commit();
@@ -82,15 +77,15 @@ public class RegisterResource {
     }
 
 
+    private void setupAccount(RegisterData data) {
+        if (data.username.equals("su")) {
+            data.role = UserRole.SU.toString();
+            data.state = UserState.ACTIVE.toString();
+        } else {
+            data.role = UserRole.USER.toString();
+            data.state = UserState.INACTIVE.toString();
+        }
 
-    private void setRole(RegisterData data){
-        if(data.username.equals("0x23CBB06B"))
-            data.role = "SU";
-        else
-            data.role = "USER";
-    }
-    private void setState(RegisterData data){
-        data.state = UserState.INACTIVE.toString();
     }
 
 }

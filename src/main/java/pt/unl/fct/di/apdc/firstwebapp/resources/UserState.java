@@ -31,7 +31,8 @@ public enum UserState {
         }
         return false;
     }
-    public static String changeState(Entity targetUser){
+
+    public static String changeState(Entity targetUser) {
         if (targetUser.getString("user_state").equals(UserState.ACTIVE))
             return UserState.INACTIVE.toString();
         else return UserState.ACTIVE.toString();

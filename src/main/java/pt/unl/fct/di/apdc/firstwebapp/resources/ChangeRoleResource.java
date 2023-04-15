@@ -55,6 +55,12 @@ public class ChangeRoleResource {
                 LOG.warning("One of the users doesn't exist.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+            if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
+                LOG.warning("User is not active.");
+                return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
+
+            }
+
             if (!UserRole.canChangeRole(user, targetUser)) {
                 LOG.warning("User has no permissions to change target role.");
                 return Response.status(Response.Status.FORBIDDEN).build();

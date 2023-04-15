@@ -57,13 +57,15 @@ public class ChangeOptionalAttributesResource {
                 LOG.warning("One of the users doesn't exist.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
-
+            if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
+                LOG.warning("User is not active.");
+                return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
+            }
 
             if (!UserRole.canModifyUser(user, targetUser)) {
                 LOG.warning("Not enough permissions to modify user.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
-            LOG.severe("QUIE1");
             txn.update(updateUser(user, targetUser, targetKey, data));
             txn.commit();
             return Response.status(Response.Status.OK).entity("User's attributes modified.").build();
