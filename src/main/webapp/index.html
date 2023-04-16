@@ -83,16 +83,26 @@
             margin-top: 2rem;
             text-align: center;
         }
+        .logo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 20px;
+            width: 150px;
+            border-radius: 10px;
+            border: 2px solid black;
+        }
     </style>
 </head>
 <body onload="mySU()">
+<img src="https://storage.googleapis.com/trans-airfoil-379315.appspot.com/nova.png" alt="Logo" class="logo">
 <h1>Projeto individual ADC 2023</h1>
 <h3>Selecione o comando pretendido.</h3>
 
 <table>
     <thead>
     <tr>
-        <th colspan="2">Available Services:</th>
+        <th colspan="2">Available Services:  <span style="color: green;">        ALL OF THEM! </span></th>
     </tr>
     </thead>
     <tbody>
@@ -110,7 +120,7 @@
 <div class="button-container">
     <!-- Simple link for Register User button -->
     <button onclick="window.location.href='/pages/register.html'" class="button">Register User</button>
-    <button>Login User</button>
+    <button onclick="window.location.href='/pages/login.html'" class="button">Login User</button>
     <!-- Button with onclick attribute for Open Clip FCT button -->
     <button onclick="window.location.href='https://clip.fct.unl.pt/'" class="button">Open Clip FCT</button>
 </div>

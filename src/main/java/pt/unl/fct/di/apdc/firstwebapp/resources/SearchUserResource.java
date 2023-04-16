@@ -75,7 +75,8 @@ public class SearchUserResource {
                 return Response.status(Response.Status.FORBIDDEN).entity("No users found. ").build();
             } else {
                 Entity currUser = users.next();
-                getUser(currUser, usersInfo);
+                usersInfo.add(getUserData(currUser, ""));
+                //getUser(currUser, usersInfo);
                 LOG.severe(String.valueOf(usersInfo.size()));
                 return Response.status(Response.Status.OK).entity(g.toJson(usersInfo)).build();
             }

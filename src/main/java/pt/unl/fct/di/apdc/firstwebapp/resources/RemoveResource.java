@@ -54,16 +54,20 @@ public class RemoveResource {
                 LOG.warning("Tokens don't match.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+
             if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
                 LOG.warning("Login has expired. Login again ");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+
             Entity user = txn.get(userKey);
             Entity userToDelete = txn.get(targetKey);
+
             if (userToDelete == null || user == null) {
                 LOG.warning("One of the users doesn't exist.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+
             if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
                 LOG.warning("User is not active.");
                 return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
@@ -72,8 +76,10 @@ public class RemoveResource {
                 LOG.warning("Not enough permissions to remove user.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             } else {
+                if (user == userToDelete) {
+                    txn.delete(tokenKey);
+                }
                 txn.delete(targetKey);
-                txn.delete(tokenKey);
                 txn.commit();
                 return Response.status(Response.Status.OK).entity("User " + data.targetUser + " removed.").build();
             }

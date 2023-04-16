@@ -14,7 +14,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.logging.Logger;
 
-
+@Path("/changePassword")
+@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8") // produz sempre dados em json
 public class ChangePasswordResource {
     private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
 
@@ -25,12 +26,11 @@ public class ChangePasswordResource {
     private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("AuthTokens");
 
     @PUT
-    @Path("/changePassword")
+    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8") // produz sempre dados em json
     public Response changePassword(ChangePasswordData data) {
         LOG.fine("Attempt to change password for user: " + data.username);
-
         Key userKey = userKeyFactory.newKey(data.username);
         Key tokenKey = tokenKeyFactory.newKey(data.username);
 
@@ -45,6 +45,7 @@ public class ChangePasswordResource {
                 LOG.warning("Token not found. Please login.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+
             if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
                 LOG.warning("Tokens don't match.");
                 return Response.status(Response.Status.FORBIDDEN).build();
@@ -54,6 +55,7 @@ public class ChangePasswordResource {
                 LOG.warning("Login has expired. Login again ");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+
             if (user == null) {
                 //Username does not exist
                 LOG.warning("Failed login attempt for username: " + data.username);
@@ -72,6 +74,7 @@ public class ChangePasswordResource {
                 LOG.warning("The passwords are the same:");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+
             if (!data.isValid()) {
                 LOG.warning("The passwords don't match.");
                 return Response.status(Response.Status.FORBIDDEN).build();

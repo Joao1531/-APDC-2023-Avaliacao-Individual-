@@ -102,6 +102,7 @@ public class LoginResource {
                     tokens = Entity.newBuilder(tokenKey)
                             .set("token_id", token.tokenID)
                             .set("token_expireDate", token.expirationData)
+                            .set("token_creationDate",token.creationData)
                             .build();
                     txn.put(tokens);
                     txn.commit();

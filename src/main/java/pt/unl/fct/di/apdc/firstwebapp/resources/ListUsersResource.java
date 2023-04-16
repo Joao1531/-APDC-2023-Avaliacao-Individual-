@@ -3,7 +3,6 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
 import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
-import pt.unl.fct.di.apdc.firstwebapp.util.ListData;
 import pt.unl.fct.di.apdc.firstwebapp.util.UserData;
 
 import javax.ws.rs.*;

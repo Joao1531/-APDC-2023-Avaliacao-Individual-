@@ -26,8 +26,7 @@ public class ChangeAttributesData {
     public ChangeAttributesData() {
     }
 
-    public ChangeAttributesData(String username, String targetUser, String email, String name, String phoneNum, String NIF, String job, String workAddress, AuthToken token) {
-        this.username = username;
+    public ChangeAttributesData( String targetUser, String email, String name, String phoneNum, String NIF, String job, String workAddress, AuthToken token) {
         this.targetUser = targetUser;
         this.email = email;
         this.name = name;

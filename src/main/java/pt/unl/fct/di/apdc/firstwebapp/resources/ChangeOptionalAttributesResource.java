@@ -32,9 +32,9 @@ public class ChangeOptionalAttributesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8") // produz sempre dados em json
     public Response changeAttributes(ChangeAttributesData data) {
-        Key userKey = userKeyFactory.newKey(data.username);
+        Key userKey = userKeyFactory.newKey(data.token.username);
         Key targetKey = userKeyFactory.newKey(data.targetUser);
-        Key tokenKey = tokenKeyFactory.newKey(data.username);
+        Key tokenKey = tokenKeyFactory.newKey(data.token.username);
         Transaction txn = datastore.newTransaction();
         try {
             Entity userToken = txn.get(tokenKey);
@@ -42,10 +42,12 @@ public class ChangeOptionalAttributesResource {
                 LOG.warning("Token not found. Please login.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+
             if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
                 LOG.warning("Tokens don't match.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+
 
             if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
                 LOG.warning("Login has expired. Login again ");
@@ -53,10 +55,12 @@ public class ChangeOptionalAttributesResource {
             }
             Entity user = txn.get(userKey);
             Entity targetUser = txn.get(targetKey);
+
             if (targetUser == null || user == null) {
                 LOG.warning("One of the users doesn't exist.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
+
             if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
                 LOG.warning("User is not active.");
                 return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
