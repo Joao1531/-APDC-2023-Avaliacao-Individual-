@@ -71,8 +71,16 @@ public class ChangeOptionalAttributesResource {
         }
         Transaction txn = datastore.newTransaction();
         try {
-            LOG.severe(user.getString("user_id")+" "+targetUser.getString("user_id"));
-            txn.update(updateUser(user, targetUser, targetKey, data));
+            Entity updatedUser = Entity.newBuilder(targetKey, targetUser)
+                    .set("user_name", getAtribute(targetUser.getString("user_name"), data.name))
+                    .set("user_email", getAtribute(targetUser.getString("user_email"), data.email))
+                    .set("user_phoneNum", getAtribute(targetUser.getString("user_phoneNum"), data.phoneNum))
+                    .set("user_NIF", getAtribute(targetUser.getString("user_NIF"), data.NIF))
+                    .set("user_job", getAtribute(targetUser.getString("user_job"), data.job))
+                    .set("user_workAddr", getAtribute(targetUser.getString("user_workAddr"), data.workAddress))
+                    .build();
+            LOG.severe("SUI " + updatedUser.getString("user_email") +" ..");
+            txn.update(updatedUser);
             txn.commit();
             return Response.status(Response.Status.OK).entity("User's attributes modified.").build();
         } catch (Exception e) {
@@ -94,57 +102,6 @@ public class ChangeOptionalAttributesResource {
             return newAttribute;
     }
 
-    private Entity updateUser(Entity user, Entity targetUser, Key targetKey, ChangeAttributesData data) {
-        Entity updatedUser = null;
-        switch (user.getString("user_role")) {
-            case "SU":
-                updatedUser = Entity.newBuilder(targetKey, targetUser)
-                        .set("user_name", getAtribute(targetUser.getString("user_name"), data.name))
-                        .set("user_email", getAtribute(targetUser.getString("user_email"), data.email))
-                        .set("user_phoneNum", getAtribute(targetUser.getString("user_phoneNum"), data.phoneNum))
-                        .set("user_NIF", getAtribute(targetUser.getString("user_NIF"), data.NIF))
-                        .set("user_job", getAtribute(targetUser.getString("user_job"), data.job))
-                        .set("user_workAddr", getAtribute(targetUser.getString("user_workAddr"), data.workAddress))
-                        .build();
-            case "GS":
-                if (targetUser.getString("user_role").equals(UserRole.GBO.toString()) || targetUser.getString("user_role").equals(UserRole.USER.toString()))
-                    updatedUser = Entity.newBuilder(targetKey, targetUser)
-                            .set("user_name", getAtribute(targetUser.getString("user_name"), data.name))
-                            .set("user_email", getAtribute(targetUser.getString("user_email"), data.email))
-                            .set("user_phoneNum", getAtribute(targetUser.getString("user_phoneNum"), data.phoneNum))
-                            .set("user_NIF", getAtribute(targetUser.getString("user_NIF"), data.NIF))
-                            .set("user_job", getAtribute(targetUser.getString("user_job"), data.job))
-                            .set("user_workAddr", getAtribute(targetUser.getString("user_workAddr"), data.workAddress))
-                            .build();
-                break;
-            case "GBO":
-                if (targetUser.getString("user_role").equals(UserRole.USER.toString()))
-                    updatedUser = Entity.newBuilder(targetKey, targetUser)
-                            .set("user_name", getAtribute(targetUser.getString("user_name"), data.name))
-                            .set("user_email", getAtribute(targetUser.getString("user_email"), data.email))
-                            .set("user_phoneNum", getAtribute(targetUser.getString("user_phoneNum"), data.phoneNum))
-                            .set("user_NIF", getAtribute(targetUser.getString("user_NIF"), data.NIF))
-                            .set("user_job", getAtribute(targetUser.getString("user_job"), data.job))
-                            .set("user_workAddr", getAtribute(targetUser.getString("user_workAddr"), data.workAddress))
-                            .build();
-                break;
-            case "USER":
-                if (targetUser.equals(UserRole.USER.toString()))
-                    updatedUser = Entity.newBuilder(targetKey, targetUser)
-                            .set("user_name", getAtribute(targetUser.getString("user_name"), data.name))
-                            .set("user_email", getAtribute(targetUser.getString("user_email"), data.email))
-                            .set("user_phoneNum", getAtribute(targetUser.getString("user_phoneNum"), data.phoneNum))
-                            .set("user_NIF", getAtribute(targetUser.getString("user_NIF"), data.NIF))
-                            .set("user_job", getAtribute(targetUser.getString("user_job"), data.job))
-                            .set("user_workAddr", getAtribute(targetUser.getString("user_workAddr"), data.workAddress))
-                            .build();
-                break;
-            default:
-                break;
-
-        }
-        return updatedUser;
-    }
 
 
 }
