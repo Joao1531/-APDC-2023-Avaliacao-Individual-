@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="df4d478d-b0ac-4fae-9390-b456cc86f1a9" name="Changes" comment="little change">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exercicio/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources/ChangeOptionalAttributesResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/exercicio/src/main/java/pt/unl/fct/di/apdc/firstwebapp/resources/ChangeOptionalAttributesResource.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +65,7 @@
       <option name="presentableId" value="Default" />
       <updated>1681613562679</updated>
       <workItem from="1681613564108" duration="1002000" />
-      <workItem from="1681631472257" duration="2780000" />
+      <workItem from="1681631472257" duration="3026000" />
     </task>
     <task id="LOCAL-00001" summary="little change">
       <created>1681632686194</created>
@@ -75,7 +74,14 @@
       <option name="project" value="LOCAL" />
       <updated>1681632686194</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="little change">
+      <created>1681634812282</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1681634812282</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
