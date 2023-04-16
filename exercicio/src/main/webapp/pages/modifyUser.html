@@ -120,7 +120,7 @@
 <body>
 <img src="https://storage.googleapis.com/trans-airfoil-379315.appspot.com/shrekhuh.jpeg" alt="Logo" class="logo">
 <h1>Modificar um utilizador</h1>
-<form id="changeForm">
+<form id="changelessForm">
 
 
     <label for="phoneNum">Nr.Telemóvel:</label>
@@ -143,15 +143,18 @@
 </form>
 </body>
 <script>
-    let username;
+
     function changeUser() {
-        const form = document.getElementById('changeForm');
+        const form = document.getElementById('changelessForm');
         const urlParams = new URLSearchParams(window.location.search);
-        username = urlParams.get('username');
+        let username = urlParams.get('username');
         let token = localStorage.getItem(username);
         const value = JSON.parse(token);
+        console.log(username);
         const formData = {
             targetUser: username,
+            email: "",
+            name: "",
             phoneNum: form.elements['phoneNum'].value,
             NIF: form.elements['NIF'].value,
             job: form.elements['job'].value,

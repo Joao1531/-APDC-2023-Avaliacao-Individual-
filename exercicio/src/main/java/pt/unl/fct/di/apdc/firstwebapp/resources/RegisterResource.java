@@ -43,13 +43,17 @@ public class RegisterResource {
         // Checks input data
         if (!data.validRegistration())
             return Response.status(Response.Status.BAD_REQUEST).entity(" Missing or wrong parameter. ").build();
-        Transaction txn = datastore.newTransaction();
-        try {
-            Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-            Entity user = txn.get(userKey);
-            if (user != null) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("User already exists.").build();
-            } else {
+        if(!data.checkPassword()){
+            return Response.status(Response.Status.BAD_REQUEST).entity(" Password too short. ").build();
+        }
+
+        Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
+        Entity user = datastore.get(userKey);
+        if (user != null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("User already exists.").build();
+        } else {
+            Transaction txn = datastore.newTransaction();
+            try {
                 setupAccount(data);
                 user = Entity.newBuilder(userKey)
                         .set("user_id", data.username)
@@ -69,10 +73,11 @@ public class RegisterResource {
                 LOG.info("User registered " + data.username);
                 txn.commit();
                 return Response.ok("{}").build();
+
+            } finally {
+                if (txn.isActive())
+                    txn.rollback();
             }
-        } finally {
-            if (txn.isActive())
-                txn.rollback();
         }
     }
 
@@ -87,5 +92,6 @@ public class RegisterResource {
         }
 
     }
-
 }
+
+

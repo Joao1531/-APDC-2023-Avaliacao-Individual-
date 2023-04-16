@@ -35,54 +35,51 @@ public class ChangePasswordResource {
         Key tokenKey = tokenKeyFactory.newKey(data.username);
 
 
+        Entity user = datastore.get(userKey);
+        Entity userToken = datastore.get(tokenKey);
+
+        LOG.severe(user.getString("user_id"));
+
+        if (userToken == null) {
+            LOG.warning("Token not found. Please login.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
+            LOG.warning("Tokens don't match.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+
+        if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
+            LOG.warning("Login has expired. Login again ");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+
+        if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
+            LOG.warning("User is not active.");
+            return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
+
+        }
+
+        String hashedNewPwd = DigestUtils.sha512Hex(data.newPassword);
+        if (hashedNewPwd.equals(DigestUtils.sha512Hex(user.getString("user_pwd")))) {
+            LOG.warning("The passwords are the same:");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if (!data.isValid()) {
+            LOG.warning("The passwords don't match.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity user = txn.get(userKey);
-            Entity userToken = txn.get(tokenKey);
-
-            if (userToken == null) {
-                LOG.warning("Token not found. Please login.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
-                LOG.warning("Tokens don't match.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
-                LOG.warning("Login has expired. Login again ");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if (user == null) {
-                //Username does not exist
-                LOG.warning("Failed login attempt for username: " + data.username);
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
-                LOG.warning("User is not active.");
-                return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
-
-            }
-
-            String hashedNewPwd = DigestUtils.sha512Hex(data.newPassword);
-            if (hashedNewPwd.equals(DigestUtils.sha512Hex(user.getString("user_pwd")))) {
-                // Incorrect old password
-                LOG.warning("The passwords are the same:");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if (!data.isValid()) {
-                LOG.warning("The passwords don't match.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            user = Entity.newBuilder(userKey, user)
+            Entity updateUser = Entity.newBuilder(user)
                     .set("user_pwd", hashedNewPwd)
                     .build();
-            txn.update(user);
+            txn.update(updateUser);
             txn.commit();
             LOG.info("Password changed successfully for user: " + data.username);
             return Response.ok().build();

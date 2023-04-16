@@ -40,57 +40,48 @@ public class ListUsersResource {
         Key userKey = userKeyFactory.newKey(token.username);
         Key tokenKey = tokenKeyFactory.newKey(token.username);
 
-        Transaction txn = datastore.newTransaction();
 
-        try {
-            Entity userToken = txn.get(tokenKey);
-            Entity user = txn.get(userKey);
-            LOG.fine("Attempt to list users of role: " + user.getString("user_role"));
-            if (userToken == null) {
-                LOG.warning("Token not found.");
-                return Response.status(Response.Status.FORBIDDEN).entity("Token nulo").build();
-            }
-            if (!token.tokenID.equals(userToken.getString("token_id"))) {
-                LOG.warning("Tokens don't match.");
-                return Response.status(Response.Status.FORBIDDEN).entity("Token nao sao iguais").build();
-            }
-            if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
-                LOG.warning("Login has already expired.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if (user == null) {
-                LOG.warning("User doesn't exist.");
-                return Response.status(Response.Status.FORBIDDEN).entity("User nulo").build();
-            }
-            if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
-                LOG.warning("User is not active.");
-                return Response.status(Response.Status.FORBIDDEN).entity("User nulo").build();
-
-            }
-            Query<Entity> query = Query.newEntityQueryBuilder()
-                    .setKind("User")
-                    .build();
-            QueryResults<Entity> users = datastore.run(query);
-            List<UserData> usersInfo = new ArrayList<UserData>();
-
-            if (!users.hasNext()) {
-                return Response.status(Response.Status.FORBIDDEN).entity("No users found. ").build();
-            } else {
-                while (users.hasNext()) {
-                    Entity currUser = users.next();
-                    getUserInfo(currUser, user, usersInfo);
-                }
-                LOG.severe(String.valueOf(usersInfo.size()));
-                return Response.status(Response.Status.OK).entity(g.toJson(usersInfo)).build();
-            }
-        } catch (Exception e) {
-            txn.rollback();
-            LOG.severe(e.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Exception").build();
+        Entity userToken = datastore.get(tokenKey);
+        Entity user = datastore.get(userKey);
+        LOG.fine("Attempt to list users of role: " + user.getString("user_role"));
+        if (userToken == null) {
+            LOG.warning("Token not found.");
+            return Response.status(Response.Status.FORBIDDEN).entity("Token nulo").build();
+        }
+        if (!token.tokenID.equals(userToken.getString("token_id"))) {
+            LOG.warning("Tokens don't match.");
+            return Response.status(Response.Status.FORBIDDEN).entity("Token nao sao iguais").build();
+        }
+        if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
+            LOG.warning("Login has already expired.");
+            return Response.status(Response.Status.FORBIDDEN).build();
         }
 
+        if (user == null) {
+            LOG.warning("User doesn't exist.");
+            return Response.status(Response.Status.FORBIDDEN).entity("User nulo").build();
+        }
+        if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
+            LOG.warning("User is not active.");
+            return Response.status(Response.Status.FORBIDDEN).entity("User nulo").build();
 
+        }
+        Query<Entity> query = Query.newEntityQueryBuilder()
+                .setKind("User")
+                .build();
+        QueryResults<Entity> users = datastore.run(query);
+        List<UserData> usersInfo = new ArrayList<UserData>();
+
+        if (!users.hasNext()) {
+            return Response.status(Response.Status.FORBIDDEN).entity("No users found. ").build();
+        } else {
+            while (users.hasNext()) {
+                Entity currUser = users.next();
+                getUserInfo(currUser, user, usersInfo);
+            }
+            LOG.severe(String.valueOf(usersInfo.size()));
+            return Response.status(Response.Status.OK).entity(g.toJson(usersInfo)).build();
+        }
     }
 
     private void getUserInfo(Entity currUser, Entity user, List<UserData> usersInfo) {

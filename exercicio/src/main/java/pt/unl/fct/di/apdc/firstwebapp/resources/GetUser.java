@@ -37,7 +37,6 @@ public class GetUser {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8") // produz sempre dados em json
     public Response getUser(@PathParam("username") String username){
         Key userKey = userKeyFactory.newKey(username);
-        Key tokenKey = tokenKeyFactory.newKey(username);
 
         Transaction txn = datastore.newTransaction();
         try{

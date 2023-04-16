@@ -35,41 +35,43 @@ public class ChangeOptionalAttributesResource {
         Key userKey = userKeyFactory.newKey(data.token.username);
         Key targetKey = userKeyFactory.newKey(data.targetUser);
         Key tokenKey = tokenKeyFactory.newKey(data.token.username);
+
+        Entity userToken = datastore.get(tokenKey);
+        if (userToken == null) {
+            LOG.warning("Token not found. Please login.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
+            LOG.warning("Tokens don't match.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+
+        if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
+            LOG.warning("Login has expired. Login again ");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        Entity user = datastore.get(userKey);
+        Entity targetUser = datastore.get(targetKey);
+
+        if (targetUser == null || user == null) {
+            LOG.warning("One of the users doesn't exist.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
+            LOG.warning("User is not active.");
+            return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
+        }
+
+        if (!UserRole.canModifyUser(user, targetUser)) {
+            LOG.warning("Not enough permissions to modify user.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         Transaction txn = datastore.newTransaction();
         try {
-            Entity userToken = txn.get(tokenKey);
-            if (userToken == null) {
-                LOG.warning("Token not found. Please login.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
-                LOG.warning("Tokens don't match.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-
-            if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
-                LOG.warning("Login has expired. Login again ");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            Entity user = txn.get(userKey);
-            Entity targetUser = txn.get(targetKey);
-
-            if (targetUser == null || user == null) {
-                LOG.warning("One of the users doesn't exist.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
-                LOG.warning("User is not active.");
-                return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
-            }
-
-            if (!UserRole.canModifyUser(user, targetUser)) {
-                LOG.warning("Not enough permissions to modify user.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
+            LOG.severe(user.getString("user_id")+" "+targetUser.getString("user_id"));
             txn.update(updateUser(user, targetUser, targetKey, data));
             txn.commit();
             return Response.status(Response.Status.OK).entity("User's attributes modified.").build();
@@ -129,6 +131,8 @@ public class ChangeOptionalAttributesResource {
             case "USER":
                 if (targetUser.equals(UserRole.USER.toString()))
                     updatedUser = Entity.newBuilder(targetKey, targetUser)
+                            .set("user_name", getAtribute(targetUser.getString("user_name"), data.name))
+                            .set("user_email", getAtribute(targetUser.getString("user_email"), data.email))
                             .set("user_phoneNum", getAtribute(targetUser.getString("user_phoneNum"), data.phoneNum))
                             .set("user_NIF", getAtribute(targetUser.getString("user_NIF"), data.NIF))
                             .set("user_job", getAtribute(targetUser.getString("user_job"), data.job))

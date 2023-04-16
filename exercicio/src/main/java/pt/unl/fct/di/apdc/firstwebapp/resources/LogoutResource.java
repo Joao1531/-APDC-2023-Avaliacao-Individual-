@@ -33,27 +33,28 @@ public class LogoutResource {
         Key userKey = userKeyFactory.newKey(data.username);
         Key tokenKey = tokenKeyFactory.newKey(data.username);
 
+
+        Entity userToken = datastore.get(tokenKey);
+        if (userToken == null) {
+            LOG.warning("Token not found.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
+            LOG.warning("Tokens don't match.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
+            LOG.warning("Login has already expired.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        Entity user = datastore.get(userKey);
+        if (user == null) {
+            LOG.warning("User doesn't exist.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         Transaction txn = datastore.newTransaction();
 
         try {
-            Entity userToken = txn.get(tokenKey);
-            if (userToken == null) {
-                LOG.warning("Token not found.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
-                LOG.warning("Tokens don't match.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
-                LOG.warning("Login has already expired.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            Entity user = txn.get(userKey);
-            if (user == null) {
-                LOG.warning("User doesn't exist.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
             txn.delete(tokenKey);
             txn.commit();
             return Response.status(Response.Status.OK).entity("Token has been revoked and User has been logged out.").build();

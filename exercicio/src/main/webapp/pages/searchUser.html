@@ -160,10 +160,9 @@
 </body>
 </body>
 <script>
-  let username;
   function findUser() {
     const urlParams = new URLSearchParams(window.location.search);
-    username = urlParams.get('username');
+    const username = urlParams.get('username');
     let token = localStorage.getItem(username);
     const xhr = new XMLHttpRequest();
     xhr.open('GET', 'https://trans-airfoil-379315.oa.r.appspot.com/rest/searchUser/'+target.value+'?authToken='+encodeURIComponent(token));

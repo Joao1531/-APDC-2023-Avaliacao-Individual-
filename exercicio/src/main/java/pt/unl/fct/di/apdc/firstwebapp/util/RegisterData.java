@@ -58,6 +58,10 @@ public class RegisterData {
         return email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     }
 
+    public boolean checkPassword(){
+        return password.length()>=4;
+    }
+
     public boolean validRegistration() {
         return !username.equals("") && !password.equals("") && checkEmail();
     }

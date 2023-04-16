@@ -20,7 +20,6 @@ public class ChangeAttributesData {
     public String job;
     public String NIF;
     public String workAddress;
-    public boolean hasPhoto;
     public AuthToken token;
 
     public ChangeAttributesData() {
@@ -34,7 +33,6 @@ public class ChangeAttributesData {
         this.NIF = NIF;
         this.job = job;
         this.workAddress = workAddress;
-        this.hasPhoto = false;
         this.token = token;
     }
 }

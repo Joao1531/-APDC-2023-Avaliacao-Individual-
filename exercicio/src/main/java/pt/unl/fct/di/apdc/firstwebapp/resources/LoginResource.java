@@ -55,54 +55,39 @@ public class LoginResource {
         Key logKey = datastore.allocateId(datastore.newKeyFactory().addAncestors(PathElement.of("User", data.username)).setKind("UserLog").newKey());
         Key tokenKey = tokenKeyFactory.newKey(data.username);
 
+
+        Entity user = datastore.get(userKey);
+
+        if (user == null) {
+            //Username does not exist
+            LOG.warning("Failed login attempt for username: " + data.username);
+            return Response.status(Status.FORBIDDEN).build();
+        }
+
+        // We get the user stats from the storage
+        Entity stats = datastore.get(ctrsKey);
+        if (stats == null) {
+            stats = Entity.newBuilder(ctrsKey)
+                    .set("user_stats_logins", 0L)
+                    .set("user_stats_failed", 0L)
+                    .set("user_first_login", Timestamp.now())
+                    .set("user_last_login", Timestamp.now())
+                    .build();
+        }
+        String hashedPWD = (String) user.getString("user_pwd");
+
         Transaction txn = datastore.newTransaction();
 
         try {
-
-            Entity user = txn.get(userKey);
-
-            if (user == null) {
-                //Username does not exist
-                LOG.warning("Failed login attempt for username: " + data.username);
-                return Response.status(Status.FORBIDDEN).build();
-            }
-
-            // We get the user stats from the storage
-            Entity stats = txn.get(ctrsKey);
-            if (stats == null) {
-                stats = Entity.newBuilder(ctrsKey)
-                        .set("user_stats_logins", 0L)
-                        .set("user_stats_failed", 0L)
-                        .set("user_first_login", Timestamp.now())
-                        .set("user_last_login", Timestamp.now())
-                        .build();
-            }
-            String hashedPWD = (String) user.getString("user_pwd");
-
-
             if (hashedPWD.equals(DigestUtils.sha512Hex(data.password))) {
-                // Password is correct
-                // Construct the logs
-                Entity.Builder builder = Entity.newBuilder(logKey);
-                builder.set("user_login_ip", request.getRemoteAddr());
-                builder.set("user_login_host", request.getRemoteHost());
-                builder.set("user_login_latlon",
-                        //Does not index this property value
-                        StringValue.newBuilder(headers.getHeaderString("X-AppEngine-CityLatLong")).setExcludeFromIndexes(true).build());
-                builder.set("user_login_city", headers.getHeaderString("X-AppEngine-City"));
-                builder.set("user_login_country", headers.getHeaderString("X-AppEngine-Country"));
-                builder.set("user_login_time", Timestamp.now());
-                Entity log = builder
-                        .build();
-                copyStats(txn, stats, log, ctrsKey);
-                // Return token
                 AuthToken token = new AuthToken(data.username);
                 Entity tokens = txn.get(tokenKey);
                 if (tokens == null || System.currentTimeMillis() > tokens.getLong("token_expireDate")) {
+
                     tokens = Entity.newBuilder(tokenKey)
                             .set("token_id", token.tokenID)
                             .set("token_expireDate", token.expirationData)
-                            .set("token_creationDate",token.creationData)
+                            .set("token_creationDate", token.creationData)
                             .build();
                     txn.put(tokens);
                     txn.commit();
@@ -114,8 +99,10 @@ public class LoginResource {
                 // Copying here is even worse. Propose a better solution!
                 copyStats(txn, stats, null, ctrsKey);
                 LOG.warning("Wrong password for username: " + data.username);
+                txn.commit();
                 return Response.status(Status.FORBIDDEN).build();
             }
+
         } catch (Exception e) {
             txn.rollback();
             LOG.severe(e.getMessage());

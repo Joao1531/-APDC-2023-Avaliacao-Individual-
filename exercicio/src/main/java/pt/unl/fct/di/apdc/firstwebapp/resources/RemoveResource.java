@@ -42,54 +42,55 @@ public class RemoveResource {
         Key targetKey = userKeyFactory.newKey(data.targetUser);
         Key tokenKey = tokenKeyFactory.newKey(data.currUser);
 
-        Transaction txn = datastore.newTransaction();
 
-        try {
-            Entity userToken = txn.get(tokenKey);
-            if (userToken == null) {
-                LOG.warning("Token not found. Please login.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
-                LOG.warning("Tokens don't match.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
+        Entity userToken = datastore.get(tokenKey);
+        if (userToken == null) {
+            LOG.warning("Token not found. Please login.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        if (!data.token.tokenID.equals(userToken.getString("token_id"))) {
+            LOG.warning("Tokens don't match.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
 
-            if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
-                LOG.warning("Login has expired. Login again ");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
+        if (System.currentTimeMillis() > userToken.getLong("token_expireDate")) {
+            LOG.warning("Login has expired. Login again ");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
 
-            Entity user = txn.get(userKey);
-            Entity userToDelete = txn.get(targetKey);
+        Entity user = datastore.get(userKey);
+        Entity userToDelete = datastore.get(targetKey);
 
-            if (userToDelete == null || user == null) {
-                LOG.warning("One of the users doesn't exist.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
+        if (userToDelete == null || user == null) {
+            LOG.warning("One of the users doesn't exist.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
 
-            if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
-                LOG.warning("User is not active.");
-                return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
-            }
-            if (!UserRole.canRemoveUser(user, userToDelete)) {
-                LOG.warning("Not enough permissions to remove user.");
-                return Response.status(Response.Status.FORBIDDEN).build();
-            } else {
+        if (user.getString("user_state").equals(UserState.INACTIVE.toString())) {
+            LOG.warning("User is not active.");
+            return Response.status(Response.Status.FORBIDDEN).entity("User inativo").build();
+        }
+        if (!UserRole.canRemoveUser(user, userToDelete)) {
+            LOG.warning("Not enough permissions to remove user.");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        } else {
+            Transaction txn = datastore.newTransaction();
+            try {
                 if (user == userToDelete) {
                     txn.delete(tokenKey);
                 }
                 txn.delete(targetKey);
                 txn.commit();
                 return Response.status(Response.Status.OK).entity("User " + data.targetUser + " removed.").build();
+            } catch (Exception e) {
+                txn.rollback();
+                LOG.severe(e.getMessage());
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Exception").build();
             }
-        } catch (Exception e) {
-            txn.rollback();
-            LOG.severe(e.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Exception").build();
+
         }
 
-
     }
+
 
 }

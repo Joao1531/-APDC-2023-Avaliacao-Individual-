@@ -118,6 +118,7 @@
         button:hover {
             background-color: #8a2be2;
         }
+
         .logo {
             position: absolute;
             top: -30px;
@@ -145,28 +146,28 @@
 </div>
 <div class="button-container">
     <!-- Simple link for Register User button -->
-    <button onclick="window.location.href='/pages/removeUser.html?username='+ username" class="button">Remover
+    <button onclick="window.location.href='/pages/removeUser.html?username='+ getUser()" class="button">Remover
         Utilizador
     </button>
-    <button onclick="window.location.href='/pages/changeRole.html?username='+username" class="button">Alterar Role
+    <button onclick="window.location.href='/pages/changeRole.html?username='+getUser()" class="button">Alterar Role
         Utilizador
     </button>
 </div>
 <div class="button-container">
     <!-- Simple link for Register User button -->
-    <button onclick="window.location.href='/pages/changeState.html?username='+username" class="button">Alterar Estado
+    <button onclick="window.location.href='/pages/changeState.html?username='+getUser()" class="button">Alterar Estado
         Utilizador
     </button>
-    <button onclick="window.location.href='/pages/listUsers.html?username='+username" class="button">Listar
+    <button onclick="window.location.href='/pages/listUsers.html?username='+getUser()" class="button">Listar
         Utilizadores
     </button>
 </div>
 <div class="button-container">
     <!-- Simple link for Register User button -->
-    <button onclick="window.location.href='/pages/modifyUserSU.html?username='+username" class="button">Modificar
+    <button onclick="window.location.href='/pages/modifyUserSU.html?username='+getUser()" class="button">Modificar
         Utilizador
     </button>
-    <button onclick="window.location.href='/pages/changePassword.html?username='+username" class="button">Alterar
+    <button onclick="window.location.href='/pages/changePassword.html?username='+getUser()" class="button">Alterar
         Password
     </button>
 </div>
@@ -180,11 +181,10 @@
 </div>
 </body>
 <script>
-    let username;
 
     function getUserInfo(val) {
         const urlParams = new URLSearchParams(window.location.search);
-        username = urlParams.get('username');
+        let username = urlParams.get('username');
         const xhr = new XMLHttpRequest();
         xhr.open('GET', 'https://trans-airfoil-379315.oa.r.appspot.com/rest/getUser/' + username);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -224,7 +224,7 @@
 
     function logout() {
         const urlParams = new URLSearchParams(window.location.search);
-        username = urlParams.get('username');
+        let username = urlParams.get('username');
         let token = localStorage.getItem(username);
         const value = JSON.parse(token);
         const formData = {
@@ -237,7 +237,10 @@
         xhr.onload = function () {
             if (xhr.status === 200) {
                 alert("User logged out.");
-                window.location.href = '../index.html';
+                window.location.href = "/index.html";
+                setTimeout(function () {
+                    window.location.replace("/index.html");
+                }, 0);
             } else {
                 alert('Error logging in. ' + xhr.status);
             }
@@ -245,9 +248,17 @@
         xhr.send(JSON.stringify(formData));
     }
 
+    function getUser() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('username');
+    }
+
+
     function showToken() {
-        let token = localStorage.getItem(username);
+        let token = localStorage.getItem(getUser());
         const value = JSON.parse(token);
+        console.log("Token username: " + value.username + "\n" + "Token id: " + value.tokenID + "\n" + "Token creation date: " + value.creationData + "\n" + "Token expiration date: " + value.expirationData);
+
         alert("Token username: " + value.username + "\n" + "Token id: " + value.tokenID + "\n" + "Token creation date: " + value.creationData + "\n" + "Token expiration date: " + value.expirationData);
     }
 

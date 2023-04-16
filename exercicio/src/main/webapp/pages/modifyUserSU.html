@@ -154,7 +154,7 @@
     function changeUser() {
         const form = document.getElementById('changeForm');
         const urlParams = new URLSearchParams(window.location.search);
-        username = urlParams.get('username');
+        let username = urlParams.get('username');
         let token = localStorage.getItem(username);
         const value = JSON.parse(token);
         const formData = {
