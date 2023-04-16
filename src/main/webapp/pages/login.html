@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        .logo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 40px;
+            width: 200px;
+            border-radius: 10px;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #444444;
+            margin-top: 0;
+        }
+
+        label {
+            font-size: 18px;
+            color: #444444;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #1da1f2;
+            color: #ffffff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+
+        button[type="button"] {
+            background-color: #1da1f2;
+            color: #ffffff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="button"]:hover {
+            background-color: #3e8e41;
+        }
+
+        button[type="button"]:focus {
+            outline: none;
+        }
+
+        button[type="button"]:hover,
+        button[type="button"]:focus {
+            background-color: #4cd964;
+        }
+    </style>
+</head>
+<body>
+<h1>Efetuar Login</h1>
+<form id="loginForm">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="button" onclick="loginAttempt()">Log in</button>
+</form>
+</body>
+<script>
+    function loginAttempt() {
+        const form = document.getElementById('loginForm');
+        const formData = {
+            username: form.elements['username'].value,
+            password: form.elements['password'].value,
+        };
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://trans-airfoil-379315.oa.r.appspot.com/rest/login');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                const token = JSON.parse(xhr.responseText);
+                localStorage.setItem(formData.username,JSON.stringify(token));
+                console.log("username: " + token.username + "\n" + "tokenID: " + token.tokenID + "\n" + "creationData:" + token.creationData + "\n" + "expirationData: " + token.expirationData)
+                alert('Logged in successfully');
+                checkRole(token.role, token.username);
+            } else {
+                alert('Error logging in. ' + xhr.status);
+            }
+        };
+        xhr.send(JSON.stringify(formData));
+    }
+</script>
+<script>
+    function checkRole(role, userID) {
+        switch (role) {
+            case "SU":
+                window.location.href = 'su.html?username=' + userID;
+                break;
+            case "GS":
+                window.location.href = 'gs.html?username=' + userID;
+                break;
+            case "GA":
+                window.location.href = 'ga.html?username=' + userID;
+                break;
+            case "GBO":
+                window.location.href = 'gbo.html?username=' + userID;
+                break;
+            case "USER":
+                window.location.href = 'user.html?username=' + userID;
+                break;
+            default:
+        }
+    }
+</script>
+</html>

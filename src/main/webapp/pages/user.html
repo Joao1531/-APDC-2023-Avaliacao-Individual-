@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+        }
+
+        .green-bar {
+            height: 50px;
+            background-color: green;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .user-info {
+            position: relative;
+            margin-top: 100px;
+            padding: 40px;
+            border: 1px solid #cccccc;
+            border-radius: 10px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #ffffff;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #444444;
+            margin-top: 0;
+        }
+
+        p {
+            font-size: 18px;
+            color: #444444;
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-size: 18px;
+            color: #444444;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            background-color: #f2f2f2;
+        }
+
+        input[type="submit"],
+        button[type="button"] {
+            background-color: #1da1f2;
+            color: #ffffff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover,
+        button[type="button"]:hover {
+            background-color: #3e8e41;
+        }
+
+        button[type="button"]:focus {
+            outline: none;
+        }
+
+        button[type="button"]:hover,
+        button[type="button"]:focus {
+            background-color: #4cd964;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            background-color: #1da1f2;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            margin-right: 50px;
+            margin-left: 50px;
+            width: 200px;
+        }
+
+        button:hover {
+            background-color: #008000;
+        }
+        .logo {
+            position: absolute;
+            top: -30px;
+            right: 0;
+            margin-right: 30px;
+            width: 150px;
+            border-radius: 10px;
+            border: 2px solid green;
+        }
+
+    </style>
+</head>
+<body>
+<div class="green-bar"></div>
+<div class="user-info">
+    <img src="https://storage.googleapis.com/trans-airfoil-379315.appspot.com/default.jpeg" alt="Logo" class="logo">
+
+    <h1>Perfil do utilizador (User):</h1>
+    <p id="Username">Username: </p>
+    <p id="Email">Email: </p>
+    <p id="Nome">Nome: </p>
+    <p id="Estado">Estado: </p>
+    <p id="Privado">Privado: </p>
+
+
+</div>
+<div class="button-container">
+    <!-- Simple link for Register User button -->
+    <button onclick="window.location.href='/pages/removeUser.html?username='+ username" class="button">Remover
+        Utilizador
+    </button>
+    <button onclick="window.location.href='/pages/changeRole.html?username='+username" class="button">Alterar Role
+        Utilizador
+    </button>
+</div>
+<div class="button-container">
+    <!-- Simple link for Register User button -->
+    <button onclick="window.location.href='/pages/changeState.html?username='+username" class="button">Alterar Estado
+        Utilizador
+    </button>
+    <button onclick="window.location.href='/pages/listUsers.html?username='+username" class="button">Listar
+        Utilizadores
+    </button>
+</div>
+<div class="button-container">
+    <!-- Simple link for Register User button -->
+    <button onclick="window.location.href='/pages/modifyUser.html?username='+username" class="button">Modificar
+        Utilizador
+    </button>
+    <button onclick="window.location.href='/pages/changePassword.html?username='+username" class="button">Alterar
+        Password
+    </button>
+</div>
+<div class="button-container">
+    <!-- Simple link for Register User button -->
+    <button onclick="logout()" class="button">Logout</button>
+</div>
+<div class="button-container">
+    <!-- Simple link for Register User button -->
+    <button onclick="showToken()" class="button">Ver Token</button>
+</div>
+</body>
+<script>
+    let username;
+
+    function getUserInfo(val) {
+        const urlParams = new URLSearchParams(window.location.search);
+        username = urlParams.get('username');
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://trans-airfoil-379315.oa.r.appspot.com/rest/getUser/' + username);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                const user = JSON.parse(xhr.responseText);
+                document.getElementById(val).innerHTML = val + ": " + checkCommand(user, val); // set innerHTML property to the name of the user
+                console.log(checkCommand(user, val));
+                return checkCommand(user, val);
+            } else {
+                alert('Error logging in. ' + xhr.status);
+            }
+        };
+        xhr.send();
+    }
+
+    function checkCommand(user, val) {
+        switch (val) {
+            case "Username":
+                return user.name;
+            case "Email":
+                return user.email;
+            case "Nome":
+                return user.name;
+            case "Estado":
+                return user.state;
+            case "Privado":
+                return user.isPrivate;
+        }
+    }
+
+    document.getElementById("Username").textContent = getUserInfo("Username");
+    document.getElementById("Email").textContent = getUserInfo("Email");
+    document.getElementById("Nome").textContent = getUserInfo("Nome");
+    document.getElementById("Estado").textContent = getUserInfo("Estado");
+    document.getElementById("Privado").textContent = getUserInfo("Privado");
+
+    function logout() {
+        const urlParams = new URLSearchParams(window.location.search);
+        username = urlParams.get('username');
+        let token = localStorage.getItem(username);
+        const value = JSON.parse(token);
+        const formData = {
+            username: username,
+            token: value
+        };
+        const xhr = new XMLHttpRequest();
+        xhr.open('DELETE', 'https://trans-airfoil-379315.oa.r.appspot.com/rest/logout/');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                alert("User logged out.");
+                window.location.href = '../index.html';
+            } else {
+                alert('Error logging in. ' + xhr.status);
+            }
+        };
+        xhr.send(JSON.stringify(formData));
+    }
+
+    function showToken() {
+        let token = localStorage.getItem(username);
+        const value = JSON.parse(token);
+        alert("Token username: " + value.username + "\n" + "Token id: " + value.tokenID + "\n" + "Token creation date: " + value.creationData + "\n" + "Token expiration date: " + value.expirationData);
+    }
+
+</script>
+</html>
