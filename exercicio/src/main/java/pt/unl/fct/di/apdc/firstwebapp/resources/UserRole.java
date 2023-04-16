@@ -27,11 +27,11 @@ public enum UserRole {
             case "SU":
                 return true;
             case "GS":
-                if (!targetUser.getString("user_role").equals(GS.toString()) && targetUser.getString("user_role").equals(SU.toString()))
+                if (targetUser.getString("user_role").equals(GBO.toString()) || targetUser.getString("user_role").equals(GA.toString())||targetUser.getString("user_role").equals(USER.toString()))
                     return true;
                 break;
             case "GA":
-                if (targetUser.getString("user_role").equals(GBO.toString()) && targetUser.getString("user_role").equals(USER.toString()))
+                if (targetUser.getString("user_role").equals(GBO.toString()) || targetUser.getString("user_role").equals(USER.toString()))
                     return true;
                 break;
             case "GBO":
